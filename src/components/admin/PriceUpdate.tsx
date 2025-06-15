@@ -1,9 +1,8 @@
 // src/components/admin/PriceUpdateComponent.tsx
 import React, { useState } from 'react';
-import CalendarComponent from './Calender'; // ✅ Import the calendar
-import { supabase } from '../../utils/supabaseClient.ts'; // adjust the path as needed
+import CalendarComponent from './Calender';
+import { supabase } from '../../utils/supabaseClient.ts';
 import { eachDayOfInterval, parseISO, format } from 'date-fns';
-
 
 interface PriceUpdateState {
   dateStart: string;
@@ -18,8 +17,8 @@ interface PriceUpdateState {
 
 const PriceUpdateComponent: React.FC = () => {
   const [formData, setFormData] = useState<PriceUpdateState>({
-    dateStart: '2025-06-01',
-    dateEnd: '2025-06-03',
+    dateStart: '2025-06-15',
+    dateEnd: '2025-06-15',
     action: 'block',
     price: '220',
     depositTrips: '220',
@@ -37,42 +36,45 @@ const PriceUpdateComponent: React.FC = () => {
 
   const handleDateUpdate = async () => {
     const { dateStart, dateEnd, action, price } = formData;
-  
+
     const dateRange = eachDayOfInterval({
       start: parseISO(dateStart),
       end: parseISO(dateEnd)
     });
-  
-    const updates = dateRange.map(date => ({
-      date: format(date, 'yyyy-MM-dd'),
-      base_price: action === 'price-update' ? Number(price) : 0,
-      is_available: action === 'block' ? false : true
-    }));
-  
+
+    const updates = dateRange.map(date => {
+      const formattedDate = format(date, 'yyyy-MM-dd');
+      return {
+        date: formattedDate,
+        base_price: action === 'price-update' ? Number(price) : 0,
+        is_available: action === 'block' ? false : true,
+        status: action === 'block' ? 'blocked' : 'available'
+      };
+    });
+
     for (const update of updates) {
       const { error } = await supabase
         .from('calendar_prices')
         .upsert(update, { onConflict: ['date'] });
-  
+
       if (error) {
         console.error('Error updating date:', update.date, error.message);
         alert(`Failed on ${update.date}: ${error.message}`);
         return;
       }
     }
-  
+
     alert(`Dates updated successfully! Action: ${action}`);
   };
-  
 
   const handleCostUpdate = async () => {
     const { dateStart, dateEnd, depositTrips, insuranceTrips, additionalMiles, serviceFees } = formData;
-  
+
     const dateRange = eachDayOfInterval({
       start: parseISO(dateStart),
       end: parseISO(dateEnd)
     });
-  
+
     const updates = dateRange.map(date => ({
       date: format(date, 'yyyy-MM-dd'),
       deposit: Number(depositTrips),
@@ -80,22 +82,22 @@ const PriceUpdateComponent: React.FC = () => {
       extra_miles_fee: Number(additionalMiles),
       service_fee: Number(serviceFees)
     }));
-  
+
     for (const update of updates) {
       const { error } = await supabase
         .from('calendar_prices')
         .upsert(update, { onConflict: ['date'] });
-  
+
       if (error) {
         console.error('Error updating cost for:', update.date, error.message);
         alert(`Failed on ${update.date}: ${error.message}`);
         return;
       }
     }
-  
+
     alert('Cost settings updated successfully!');
   };
-  
+
   const formatDate = (dateString: string): string => {
     const date = new Date(dateString);
     return date.toLocaleDateString('en-US', {
@@ -105,17 +107,16 @@ const PriceUpdateComponent: React.FC = () => {
     });
   };
 
+  const today = new Date().toISOString().split('T')[0];
+
   return (
     <div className="max-w-5xl mx-auto p-6 space-y-8">
-      {/* ✅ Calendar Preview */}
       <CalendarComponent />
 
-      {/* 🔧 Price & Date Updater Section */}
       <div className="bg-white rounded-lg shadow">
         <div className="p-6">
           <h2 className="text-xl font-semibold mb-6">Price & Availability Update</h2>
 
-          {/* Date Range Inputs */}
           <div className="grid grid-cols-2 gap-4 mb-6">
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -126,6 +127,7 @@ const PriceUpdateComponent: React.FC = () => {
                 value={formData.dateStart}
                 onChange={(e) => handleInputChange('dateStart', e.target.value)}
                 className="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                min={today}
               />
             </div>
             <div>
@@ -137,6 +139,7 @@ const PriceUpdateComponent: React.FC = () => {
                 value={formData.dateEnd}
                 onChange={(e) => handleInputChange('dateEnd', e.target.value)}
                 className="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                min={formData.dateStart || today}
               />
             </div>
           </div>
@@ -147,7 +150,6 @@ const PriceUpdateComponent: React.FC = () => {
             </div>
           )}
 
-          {/* Action Radio Buttons */}
           <div className="mb-6">
             <label className="block text-sm font-medium text-gray-700 mb-3">Action</label>
             <div className="flex flex-wrap gap-4 items-center">
@@ -181,7 +183,6 @@ const PriceUpdateComponent: React.FC = () => {
             </div>
           </div>
 
-          {/* Update Dates Button */}
           <button
             onClick={handleDateUpdate}
             className="bg-blue-500 text-white px-6 py-2 rounded-md hover:bg-blue-600 transition-colors mb-8"
@@ -189,10 +190,8 @@ const PriceUpdateComponent: React.FC = () => {
             Update Dates
           </button>
 
-          {/* Divider */}
-          <hr className="mb-6" />   
+          <hr className="mb-6" />
 
-          {/* Other Cost Settings */}
           <h3 className="text-lg font-semibold mb-4">Other Cost Updates</h3>
           <div className="space-y-4">
             {[
@@ -231,3 +230,4 @@ const PriceUpdateComponent: React.FC = () => {
 };
 
 export default PriceUpdateComponent;
+        
