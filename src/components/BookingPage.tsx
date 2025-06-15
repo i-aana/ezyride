@@ -1,108 +1,205 @@
-import React, { useState } from 'react'; //parent component of customerformmodal
-import CustomerFormModal from './CustomerFormModal';
-import { CustomerInfo, DateRange } from '../types';
-import { car as selectedCar } from '../data/mockData'; 
-import { calculateTotalDays, calculateTotalPrice } from '../utils/bookingUtils';
+import React, { useState } from 'react';
+import { ArrowLeft, Calendar, Phone, Mail, CreditCard, Check, X } from 'lucide-react';
+import RiderInfoStep from './RiderInfoStep';
+import PaymentMethodStep from './PaymentStep';
+import FinalReviewStep from './FinalReviewStep';
+import { BookingState, CustomerInfo, DateRange } from '../types'; // Adjust import based on your structure
 
-const BookingPage = () => {
-  const [customerInfo, setCustomerInfo] = useState<CustomerInfo>({
-    fullName: '',
-    email: '',
-    phone: '',
-    specialRequests: '',
-  });
+interface BookingPageProps {
+  bookingState: BookingState;
+  handleCustomerFormSubmit: () => Promise<void>;
+  handleCustomerInfoChange: (info: Partial<CustomerInfo>) => void;
+  // onDateChange: (field: keyof DateRange, value: Date | null) => void;
+}
 
+const BookingPage: React.FC<BookingPageProps> = ({
+  bookingState,
+  handleCustomerFormSubmit,
+  handleCustomerInfoChange,
+}) => {
+  // ✅ Local state for date range
   const [dateRange, setDateRange] = useState<DateRange>({
     pickupDate: null,
-    returnDate: null,
+    returnDate: null
   });
 
-  // const [selectedCar, setSelectedCar] = useState<Car>({
-  //   name: 'Toyota Camry',
-  //   price: 50,
-  // });
-
-  const [modalOpen, setModalOpen] = useState(false);
-
-  const formatDate = (date: Date | null) => {
-    if (!date) return '';
-    return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+  const handleDateChange = (field: keyof DateRange, value: Date | null) => {
+    setDateRange(prev => ({ ...prev, [field]: value }));
   };
 
-  // const calculateTotalDays = () => {
-  //   if (!dateRange.pickupDate || !dateRange.returnDate) return 0;
-  //   const diffTime = Math.abs(dateRange.returnDate.getTime() - dateRange.pickupDate.getTime());
-  //   return Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-  // };
+  const [currentStep, setCurrentStep] = useState(1);
+  const [showConfirmationModal, setShowConfirmationModal] = useState(false);
 
-  // const totalDays = calculateTotalDays();
-  // const totalPrice = totalDays * selectedCar.price;
-  const totalDays = calculateTotalDays(dateRange.pickupDate, dateRange.returnDate);
-  const totalPrice = calculateTotalPrice(totalDays, selectedCar.price);
+  const [formData, setFormData] = useState({
+    firstName: '',
+    lastName: '',
+    email: '',
+    phone: '',
+    specialRequest: '',
+    agreeTerms: false,
+    paymentMethod: 'credit',
+    cardholderName: '',
+    cardNumber: '',
+    expirationMonth: '',
+    expirationYear: '',
+    securityCode: '',
+    voucherCode: '',
+    pickupDate: '',
+    returnDate: ''
+  });
 
-  const handleBookingSubmit = async () => {
-    try {
+  const [confirmationData, setConfirmationData] = useState({
+    requestId: '1234567',
+    phone: '123-456-7890',
+    email: 'booking@ezyrideky.com'
+  });
 
-      if (!dateRange.pickupDate || !dateRange.returnDate) {
-        alert('Please select both pickup and return dates.');
-        return;
-      }
-      
-      const res = await fetch('/api/bookings', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          full_name: customerInfo.fullName,
-          email: customerInfo.email,
-          phone: customerInfo.phone,
-          special_requests: customerInfo.specialRequests,
-          pickup_date: dateRange.pickupDate,
-          return_date: dateRange.returnDate,
-          total_days: totalDays,
-          total_price: totalPrice,
-          status: 'pending',
-        }),
-      });
-      const responseData = await res.json();
-
-
-      if (res.ok) {
-        alert('Booking submitted successfully!');
-        console.log('Server response:', responseData);
-        setModalOpen(false);
-        setModalOpen(false);
-        // reset form if needed
-      } else {
-        const errorData = await res.json();
-        console.error('Booking error:', errorData);
-        alert('Error: ' + errorData.error);  // because you're returning { error: error.message }
-
-        alert('Error submitting booking: ' + errorData.message);
-      }
-    } catch (error) {
-      console.error('Network or code error:', error);
-      alert('Failed to submit booking: ' + (error instanceof Error ? error.message : String(error)));
-    }
+  const handleInputChange = (field: string, value: string | boolean) => {
+    setFormData(prev => ({
+      ...prev,
+      [field]: value
+    }));
   };
+
+  const handleNextStep = () => {
+    if (currentStep < 4) setCurrentStep(prev => prev + 1);
+  };
+
+  const handleBackStep = () => {
+    if (currentStep > 1) setCurrentStep(prev => prev - 1);
+  };
+
+  const handleSubmitBooking = async () => {
+    const fullName = `${formData.firstName} ${formData.lastName}`;
+    
+    
+    handleCustomerInfoChange({
+      fullName,
+      email: formData.email,
+      phone: formData.phone,
+      specialRequests: formData.specialRequest,
+      pickupDate: dateRange.pickupDate,
+      returnDate: dateRange.returnDate
+    });
+    
+    await handleCustomerFormSubmit();
+    console.log("handleCustomerInfoChange in BookingPage:", handleCustomerInfoChange);
+
+    const newRequestId = Math.floor(Math.random() * 9000000) + 1000000;
+    setConfirmationData(prev => ({
+      ...prev,
+      requestId: newRequestId.toString(),
+    }));
+
+    setShowConfirmationModal(true);
+  };
+
+  const BookingSummary: React.FC<{ formData: typeof formData; dateRange: DateRange }> = ({ formData, dateRange }) => (
+    <div className="bg-gray-50 p-6 rounded-lg">
+      <h3 className="text-lg font-semibold mb-4 text-gray-800">Booking Summary</h3>
+      <div className="space-y-4">
+        <div className="flex justify-between">
+          <span>Pickup Date</span>
+          <span>{dateRange.pickupDate instanceof Date ? dateRange.pickupDate.toLocaleDateString() : 'Not selected'}</span>
+        </div>
+        <div className="flex justify-between">
+          <span>Return Date</span>
+          <span>{dateRange.returnDate instanceof Date ? dateRange.returnDate.toLocaleDateString() : 'Not selected'}</span>
+        </div>
+        <div><strong>Pickup Location:</strong> 231 Morgantown Rd</div>
+        <div className="border-t pt-4">
+          <h4 className="font-medium mb-2 text-gray-700">Cost Details</h4>
+          {/* Cost breakdown (static for now) */}
+          <div className="flex justify-between"><span>$200.00 x 2 nights</span><span>$400.00</span></div>
+          <div className="flex justify-between"><span>$210.00 x 2 nights</span><span>$420.00</span></div>
+          <div className="flex justify-between"><span>Insurance Coverage</span><span>$120.00</span></div>
+          <div className="flex justify-between"><span>Service Fee</span><span>$50.00</span></div>
+          <div className="flex justify-between"><span>800 miles included</span><span>$0.00</span></div>
+          <div className="text-xs text-gray-500">* Additional Miles 0.50/mile</div>
+          <div className="flex justify-between border-t pt-2"><span>Deposit</span><span>$200.00</span></div>
+          <div className="flex justify-between font-semibold text-lg border-t pt-2"><span>Total Cost</span><span>$1190.00</span></div>
+        </div>
+      </div>
+    </div>
+  );
+
+  const ConfirmationModal = () => (
+    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+      <div className="bg-white rounded-lg max-w-md w-full p-6">
+        <div className="flex justify-between items-center mb-4">
+          <h3 className="text-lg font-semibold">Booking Confirmation</h3>
+          <button onClick={() => { setShowConfirmationModal(false); window.location.reload(); }} className="text-gray-400 hover:text-gray-600">
+            <X className="w-5 h-5" />
+          </button>
+        </div>
+        <div className="text-center space-y-4">
+          <div className="flex justify-center mb-4">
+            <div className="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center">
+              <Check className="w-6 h-6 text-green-600" />
+            </div>
+          </div>
+          <p className="text-gray-700">Thank you for your interest! The host will reach out shortly.</p>
+          <p className="font-medium">Request Confirmation # {confirmationData.requestId}</p>
+          <div className="flex items-center justify-center gap-2 text-blue-600">
+            <Phone className="w-4 h-4" />
+            <span>{confirmationData.phone}</span>
+          </div>
+          <div className="flex items-center justify-center gap-2 text-blue-600">
+            <Mail className="w-4 h-4" />
+            <span>{confirmationData.email}</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
 
   return (
-    <>
-      {/* Your page content and car/date selection UI here */}
-      <button onClick={() => setModalOpen(true)} className="btn-primary">
-        Book Now
-      </button>
+    <div className="min-h-screen bg-white">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+          <div className="lg:col-span-2">
+            {currentStep === 1 && (
+              <RiderInfoStep
+                formData={formData}
+                handleInputChange={handleInputChange}
+                handleNextStep={handleNextStep}
+                handleBackStep={handleBackStep}
+                setCurrentStep={setCurrentStep}
+                dateRange={dateRange}
+                onDateChange={handleDateChange}
+                onDateRangeChange={setDateRange}
+                // customerInfo={bookingState.customerInfo}
+                // onCustomerInfoChange={handleCustomerInfoChange}
+              />
+            )}
+            {currentStep === 2 && (
+              <PaymentMethodStep
+                formData={formData}
+                handleInputChange={handleInputChange}
+                handleBackStep={handleBackStep}
+                handleNextStep={handleNextStep}
+              />
+            )}
+            {currentStep === 3 && (
+              <FinalReviewStep
+                formData={formData}
+                handleInputChange={handleInputChange}
+                handleBackStep={handleBackStep}
+                handleNextStep={handleNextStep}
+                handleSubmitBooking={handleSubmitBooking}
+                handleCustomerInfoChange={handleCustomerInfoChange}
+                dateRange={dateRange}
+              />
+            )}
+          </div>
+          <div className="lg:col-span-1">
+            <BookingSummary formData={formData} dateRange={dateRange} />
+          </div>
+        </div>
+      </div>
 
-      {modalOpen && (
-        <CustomerFormModal
-          customerInfo={customerInfo}
-          onCustomerInfoChange={(info) => setCustomerInfo((prev) => ({ ...prev, ...info }))}
-          onSubmit={handleBookingSubmit}
-          onClose={() => setModalOpen(false)}
-          dateRange={dateRange}
-          selectedCar={selectedCar}
-        />
-      )}
-    </>
+      {showConfirmationModal && <ConfirmationModal />}
+    </div>
   );
 };
 

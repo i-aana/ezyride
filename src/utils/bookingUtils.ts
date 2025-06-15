@@ -7,4 +7,4 @@ export const calculateTotalDays = (pickupDate: Date | null, returnDate: Date | n
   export const calculateTotalPrice = (days: number, dailyRate: number): number => {
     return days * dailyRate;
   };
-  
+  // calculation of money

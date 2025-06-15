@@ -35,6 +35,7 @@ const CustomerFormModal: React.FC<CustomerFormModalProps> = ({
   
   // const totalDays = calculateTotalDays();
   // const totalPrice = totalDays * selectedCar.price;...remove
+  
 
   const totalDays = calculateTotalDays(dateRange.pickupDate, dateRange.returnDate);
   const totalPrice = calculateTotalPrice(totalDays, selectedCar.price);
@@ -42,6 +43,7 @@ const CustomerFormModal: React.FC<CustomerFormModalProps> = ({
   // Rename internal validation submit handler so it does not clash with onSubmit
   const handleFormSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    console.log('Form Submit Triggered');
     
     const newErrors: Record<string, string> = {};
     
@@ -62,6 +64,7 @@ const CustomerFormModal: React.FC<CustomerFormModalProps> = ({
     setErrors(newErrors);
     
     if (Object.keys(newErrors).length === 0) {
+      console.log('Form passed validation, calling parent onSubmit...');
       onSubmit();  // call the async submit function from parent
     }
   };
@@ -210,8 +213,10 @@ const CustomerFormModal: React.FC<CustomerFormModalProps> = ({
                   <button
                     type="submit"
                     className="px-6 py-2 bg-blue-900 text-white rounded-md hover:bg-blue-800 transition-colors"
+                    onClick={() => console.log('Submit button clicked')}
                   >
                     Complete Booking
+                    
                   </button>
                 </div>
               </form>
