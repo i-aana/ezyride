@@ -188,7 +188,7 @@ function App() {
         }        onSubmit={handleInitialSubmit}
       />
 
-      <RiderInfoStep
+      {/* <RiderInfoStep
         formData={bookingState.customerInfo}
         handleInputChange={(field, value) =>
           setBookingState(prev => ({
@@ -210,7 +210,7 @@ function App() {
           }))
         }
         
-      />
+      /> */}
 
       <CarDetails car={car} />
       <FeaturesSection />
