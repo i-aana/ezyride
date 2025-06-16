@@ -1,6 +1,9 @@
 import React from 'react';
 import { ArrowLeft } from 'lucide-react';
-import { DateRange } from './types';
+import { BookingState ,DateRange } from '../types';
+import { useNavigate } from 'react-router-dom';
+
+
 
 interface RiderInfoStepProps {
   formData: any;
@@ -12,6 +15,7 @@ interface RiderInfoStepProps {
   // onCustomerInfoChange: (info: Partial<CustomerInfo>) => void;
   dateRange: DateRange;
   onDateRangeChange:(range: DateRange) => void;
+  onDateChange: (field: keyof DateRange, value: Date) => void;
 }
 
 const RiderInfoStep: React.FC<RiderInfoStepProps> = ({
@@ -23,6 +27,8 @@ const RiderInfoStep: React.FC<RiderInfoStepProps> = ({
   dateRange,
   onDateRangeChange,
 }) => {
+  const navigate = useNavigate();
+
   const emailError = formData.email && !/^\S+@\S+\.\S+$/.test(formData.email);
   const phoneError = formData.phone && !/^\d{10,}$/.test(formData.phone);
   const nameError = (name: string) => name && /[^a-zA-Z]/.test(name);
@@ -30,7 +36,8 @@ const RiderInfoStep: React.FC<RiderInfoStepProps> = ({
   return (
     <div className="space-y-6">
       <div className="flex items-center gap-2 mb-6">
-        <button onClick={handleBackStep} className="flex items-center text-gray-600 hover:text-gray-800">
+        <button onClick={() => navigate('/')}
+         className="flex items-center text-gray-600 hover:text-gray-800">
           <ArrowLeft className="w-4 h-4 mr-1" />
           Back
         </button>
@@ -145,7 +152,7 @@ const RiderInfoStep: React.FC<RiderInfoStepProps> = ({
           <input
             type="date"
             value={dateRange.pickupDate ? dateRange.pickupDate.toISOString().split('T')[0] : ''}
-            onChange={(e) => onDateRangeChange({ ...dateRange, pickupDate: new Date(e.target.value) })}            className="w-full px-3 py-2 border border-gray-300 rounded-md"
+            onChange={e => onDateChange('pickupDate', new Date(e.target.value))}
           />
         </div>
 
@@ -155,13 +162,7 @@ const RiderInfoStep: React.FC<RiderInfoStepProps> = ({
           <input
             type="date"
             value={dateRange.returnDate ? dateRange.returnDate.toISOString().split('T')[0] : ''}
-            min={
-              dateRange.pickupDate
-                ? new Date(dateRange.pickupDate.getTime() + 86400000).toISOString().split('T')[0]
-                : ''
-            }
-            onChange={(e) => onDateRangeChange({ ...dateRange, returnDate: new Date(e.target.value) })}
-            className="w-full px-3 py-2 border border-gray-300 rounded-md"
+            onChange={e => onDateChange('returnDate', new Date(e.target.value))}
           />
         </div>
       </div>

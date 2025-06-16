@@ -171,6 +171,9 @@ function App() {
       },
     });
   };
+  console.log("handleCustomerInfoChange in App:", handleCustomerInfoChange);
+  console.log('typeof handleCustomerInfoChange:', typeof handleCustomerInfoChange);
+
 
   return (
     <div className="min-h-screen bg-white">
@@ -217,7 +220,7 @@ function App() {
       <TestimonialsSection />
       <Footer />
 
-      <BookingPage
+      {/* <BookingPage
         bookingState={bookingState}
         handleCustomerFormSubmit={handleCustomerFormSubmit}
         handleCustomerInfoChange={handleCustomerInfoChange}
@@ -227,7 +230,7 @@ function App() {
             dateRange: { ...prev.dateRange, [field]: value },
           }))
         }
-      />
+      /> */}
 
       {showModal && (
         <CustomerFormModal

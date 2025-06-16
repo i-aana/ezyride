@@ -15,7 +15,11 @@ const HeaderHost: React.FC<HeaderHostProps> = ({ activeTab, setActiveTab, onLogo
         <div className="flex justify-between items-center h-16">
           <div className="flex items-center">
             <div className="flex-shrink-0">
-              <span className="text-2xl font-bold text-blue-600">EzyRide</span>
+              <img 
+            src="/EzyRide.png" 
+            alt="EzyRide Logo"
+            className="h-11 w-auto mr-3"
+          />
             </div>
           </div>
           
@@ -31,18 +35,7 @@ const HeaderHost: React.FC<HeaderHostProps> = ({ activeTab, setActiveTab, onLogo
               <Calendar className="w-4 h-4 mr-2" />
               CALENDAR
             </button>
-            
-            <button
-              onClick={() => setActiveTab('requests')}
-              className={`inline-flex items-center px-3 py-2 text-sm font-medium rounded-md ${
-                activeTab === 'requests' 
-                  ? 'text-blue-600 bg-blue-50' 
-                  : 'text-gray-500 hover:text-gray-700'
-              }`}
-            >
-              <FileText className="w-4 h-4 mr-2" />
-              REQUESTS
-            </button>
+        
             
             <button
               onClick={() => setActiveTab('price-update')}
@@ -54,6 +47,17 @@ const HeaderHost: React.FC<HeaderHostProps> = ({ activeTab, setActiveTab, onLogo
             >
               <DollarSign className="w-4 h-4 mr-2" />
               PRICE UPDATE
+            </button>
+            <button
+              onClick={() => setActiveTab('requests')}
+              className={`inline-flex items-center px-3 py-2 text-sm font-medium rounded-md ${
+                activeTab === 'requests' 
+                  ? 'text-blue-600 bg-blue-50' 
+                  : 'text-gray-500 hover:text-gray-700'
+              }`}
+            >
+              <FileText className="w-4 h-4 mr-2" />
+              REQUESTS
             </button>
             
             <button

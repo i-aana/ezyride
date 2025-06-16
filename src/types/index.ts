@@ -1,3 +1,5 @@
+// src/types/index.ts
+
 export interface DateRange {
   pickupDate: Date | null;
   returnDate: Date | null;
@@ -28,7 +30,6 @@ export interface BookingState {
   customerInfo: CustomerInfo;
 }
 
-// src/types/index.ts
 export interface BookingRequest {
   id: string;
   fullname: string;
@@ -68,3 +69,5 @@ export interface PriceUpdateData {
   action: 'block' | 'unblock' | 'price-update';
   price?: number;
 }
+
+// export type { BookingState, DateRange, CustomerInfo };

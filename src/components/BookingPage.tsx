@@ -4,6 +4,7 @@ import RiderInfoStep from './RiderInfoStep';
 import PaymentMethodStep from './PaymentStep';
 import FinalReviewStep from './FinalReviewStep';
 import { BookingState, CustomerInfo, DateRange } from '../types'; // Adjust import based on your structure
+import BookingSummary from './BookingSummary';
 
 interface BookingPageProps {
   bookingState: BookingState;
@@ -94,7 +95,7 @@ const BookingPage: React.FC<BookingPageProps> = ({
     setShowConfirmationModal(true);
   };
 
-  const BookingSummary: React.FC<{ formData: typeof formData; dateRange: DateRange }> = ({ formData, dateRange }) => (
+  // const BookingSummary: React.FC<{ formData: typeof formData; dateRange: DateRange }> = ({ formData, dateRange }) => (
     <div className="bg-gray-50 p-6 rounded-lg">
       <h3 className="text-lg font-semibold mb-4 text-gray-800">Booking Summary</h3>
       <div className="space-y-4">
@@ -121,7 +122,7 @@ const BookingPage: React.FC<BookingPageProps> = ({
         </div>
       </div>
     </div>
-  );
+  // );
 
   const ConfirmationModal = () => (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
