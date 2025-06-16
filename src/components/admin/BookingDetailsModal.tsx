@@ -317,7 +317,7 @@ const BookingDetailsModal: React.FC<BookingDetailsModalProps> = ({
                   </div>
                   <div className="flex justify-between">
                     <span>Deposit</span>
-                    <span>$200.00</span>
+                    <span>$200.0</span>
                   </div>
                   <hr />
                   <div className="flex justify-between font-semibold text-black">
