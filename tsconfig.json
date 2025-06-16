@@ -3,5 +3,14 @@
   "references": [
     { "path": "./tsconfig.app.json" },
     { "path": "./tsconfig.node.json" }
-  ]
+  ],
+
+
+
+  "compilerOptions": {
+    "module": "esnext",      // or "es2020"
+    "target": "esnext",      // optional but recommended
+    "moduleResolution": "node",
+    "types": ["vite/client"] // enables `import.meta.env`
+  }
 }
