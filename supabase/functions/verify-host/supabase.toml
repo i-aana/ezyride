@@ -1,0 +1,2 @@
+[functions.verify-host]
+verify_jwt = false
