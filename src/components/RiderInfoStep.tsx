@@ -24,7 +24,7 @@ const RiderInfoStep: React.FC<RiderInfoStepProps> = ({
 }) => {
   const navigate = useNavigate();
 
-  const emailError = formData.email && !/^\S+@\S+\.\S+$/.test(formData.email);
+  const emailError = formData.email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email);
   const phoneError = formData.phone && !/^\d{10,}$/.test(formData.phone);
   const nameError = (name: string) => name && /[^a-zA-Z]/.test(name);
 
@@ -80,12 +80,16 @@ const RiderInfoStep: React.FC<RiderInfoStepProps> = ({
           <input
             type="email"
             value={formData.email}
-            onChange={(e) => handleInputChange('email', e.target.value)}
+            onChange={(e) => {
+              const val = e.target.value.replace(/@{2,}/g, '@');
+              handleInputChange('email', val);
+            }}
             className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 ${
               emailError ? 'border-red-500 bg-red-50' : 'border-gray-300'
             }`}
             required
           />
+
           {emailError && (
             <p className="text-red-500 text-xs mt-1">Enter a valid email address</p>
           )}
