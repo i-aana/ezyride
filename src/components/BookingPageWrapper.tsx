@@ -80,6 +80,10 @@ const BookingPageWrapper = () => {
       const pickupDateStr = pickupDate?.toISOString() ?? '';
       const returnDateStr = returnDate?.toISOString() ?? '';
       console.log("Customer Info before insert:", bookingState.customerInfo);
+      const fullName = [bookingState.customerInfo.firstName, bookingState.customerInfo.lastName]
+  .filter(Boolean)
+  .join(' ')
+  .trim();
 
       // Insert into Supabase
       const { error } = await supabase.from('bookings1').insert([
@@ -106,7 +110,7 @@ const BookingPageWrapper = () => {
       setBookingId(newBookingId);
 
       await sendEmailToHost({
-        fullName: bookingState.customerInfo.fullName,
+        fullName,
         email: bookingState.customerInfo.email,
         bookingId: newBookingId,
         totalPrice,
