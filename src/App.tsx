@@ -103,76 +103,76 @@ function App() {
     navigate('/booking');
   };
 
-  const handleCustomerFormSubmit = async () => {
-    try {
-      const { pickupDate, returnDate } = bookingState.dateRange;
-      const totalDays = calculateTotalDays(pickupDate, returnDate);
-      const totalPrice = calculateTotalPrice(totalDays, bookingState.selectedCar.price);
-      const pickupDateStr = pickupDate?.toISOString() ?? '';
-      const returnDateStr = returnDate?.toISOString() ?? '';
+  // const handleCustomerFormSubmit = async () => {
+  //   try {
+  //     const { pickupDate, returnDate } = bookingState.dateRange;
+  //     const totalDays = calculateTotalDays(pickupDate, returnDate);
+  //     const totalPrice = calculateTotalPrice(totalDays, bookingState.selectedCar.price);
+  //     const pickupDateStr = pickupDate?.toISOString() ?? '';
+  //     const returnDateStr = returnDate?.toISOString() ?? '';
 
-      const { error } = await supabase.from('bookings1').insert([
-        {
-          full_name: bookingState.customerInfo.fullName,
-          email: bookingState.customerInfo.email,
-          phone: bookingState.customerInfo.phone,
-          special_requests: bookingState.customerInfo.specialRequests,
-          pickup_date: pickupDateStr,
-          return_date: returnDateStr,
-          total_days: totalDays,
-          total_price: totalPrice,
-          status: 'pending',
-        },
-      ]);
+  //     const { error } = await supabase.from('bookings1').insert([
+  //       {
+  //         full_name: bookingState.customerInfo.fullName,
+  //         email: bookingState.customerInfo.email,
+  //         phone: bookingState.customerInfo.phone,
+  //         special_requests: bookingState.customerInfo.specialRequests,
+  //         pickup_date: pickupDateStr,
+  //         return_date: returnDateStr,
+  //         total_days: totalDays,
+  //         total_price: totalPrice,
+  //         status: 'pending',
+  //       },
+  //     ]);
 
-      if (error) {
-        console.error('Supabase insert error:', error);
-        alert('Error saving booking: ' + error.message);
-        return;
-      }
+  //     if (error) {
+  //       console.error('Supabase insert error:', error);
+  //       alert('Error saving booking: ' + error.message);
+  //       return;
+  //     }
 
-      const newBookingId = `DR${Math.floor(100000 + Math.random() * 900000)}`;
-      setBookingId(newBookingId);
+  //     const newBookingId = `DR${Math.floor(100000 + Math.random() * 900000)}`;
+  //     setBookingId(newBookingId);
 
-      await sendEmailToHost({
-        fullName: bookingState.customerInfo.fullName,
-        email: bookingState.customerInfo.email,
-        bookingId: newBookingId,
-        totalPrice,
-        pickupDate: pickupDateStr,
-        returnDate: returnDateStr,
-        carName: bookingState.selectedCar.name,
-      });
+  //     await sendEmailToHost({
+  //       fullName: bookingState.customerInfo.fullName,
+  //       email: bookingState.customerInfo.email,
+  //       bookingId: newBookingId,
+  //       totalPrice,
+  //       pickupDate: pickupDateStr,
+  //       returnDate: returnDateStr,
+  //       carName: bookingState.selectedCar.name,
+  //     });
 
-      setShowModal(false);
-      setShowNotification(true);
-      setTimeout(() => setShowNotification(false), 5000);
+  //     setShowModal(false);
+  //     setShowNotification(true);
+  //     setTimeout(() => setShowNotification(false), 5000);
 
-      resetBooking();
-    } catch (error) {
-      console.error('Unexpected error:', error);
-      alert('Failed to submit booking. Please try again.');
-    }
-  };
+  //     resetBooking();
+  //   } catch (error) {
+  //     console.error('Unexpected error:', error);
+  //     alert('Failed to submit booking. Please try again.');
+  //   }
+  // };
 
-  const resetBooking = () => {
-    setBookingState({
-      step: 1,
-      dateRange: { 
-        pickupDate: null,
-        returnDate: null,
-      },
-      selectedCar: car,
-      customerInfo: {
-        fullName: '',
-        email: '',
-        phone: '',
-        specialRequests: '',
-      },
-    });
-  };
-  console.log("handleCustomerInfoChange in App:", handleCustomerInfoChange);
-  console.log('typeof handleCustomerInfoChange:', typeof handleCustomerInfoChange);
+  // const resetBooking = () => {
+  //   setBookingState({
+  //     step: 1,
+  //     dateRange: { 
+  //       pickupDate: null,
+  //       returnDate: null,
+  //     },
+  //     selectedCar: car,
+  //     customerInfo: {
+  //       fullName: '',
+  //       email: '',
+  //       phone: '',
+  //       specialRequests: '',
+  //     },
+  //   });
+  // };
+  // console.log("handleCustomerInfoChange in App:", handleCustomerInfoChange);
+  // console.log('typeof handleCustomerInfoChange:', typeof handleCustomerInfoChange);
 
 
   return (

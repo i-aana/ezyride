@@ -5,28 +5,36 @@ import PaymentMethodStep from './PaymentStep';
 import FinalReviewStep from './FinalReviewStep';
 import { BookingState, CustomerInfo, DateRange } from '../types'; // Adjust import based on your structure
 import BookingSummary from './BookingSummary';
+import { useNavigate } from 'react-router-dom';
 
 interface BookingPageProps {
+ 
   bookingState: BookingState;
   handleCustomerFormSubmit: () => Promise<void>;
   handleCustomerInfoChange: (info: Partial<CustomerInfo>) => void;
-  // onDateChange: (field: keyof DateRange, value: Date | null) => void;
+  onDateChange: (field: keyof DateRange, value: Date | null) => void;
 }
 
 const BookingPage: React.FC<BookingPageProps> = ({
   bookingState,
   handleCustomerFormSubmit,
   handleCustomerInfoChange,
+  onDateChange,
 }) => {
-  // ✅ Local state for date range
-  const [dateRange, setDateRange] = useState<DateRange>({
-    pickupDate: null,
-    returnDate: null
-  });
+  
+  const { dateRange } = bookingState;
+  const navigate = useNavigate();
 
-  const handleDateChange = (field: keyof DateRange, value: Date | null) => {
-    setDateRange(prev => ({ ...prev, [field]: value }));
-  };
+
+const handleDateChange = (field: keyof DateRange, value: Date | null) => {
+  const updatedRange = { ...bookingState.dateRange, [field]: value };
+  // This will update in parent (BookingPageWrapper)
+  setBookingState(prev => ({
+    ...prev,
+    dateRange: updatedRange,
+  }));
+};
+
 
   const [currentStep, setCurrentStep] = useState(1);
   const [showConfirmationModal, setShowConfirmationModal] = useState(false);
@@ -129,7 +137,10 @@ const BookingPage: React.FC<BookingPageProps> = ({
       <div className="bg-white rounded-lg max-w-md w-full p-6">
         <div className="flex justify-between items-center mb-4">
           <h3 className="text-lg font-semibold">Booking Confirmation</h3>
-          <button onClick={() => { setShowConfirmationModal(false); window.location.reload(); }} className="text-gray-400 hover:text-gray-600">
+          {/* <button onClick={() => { setShowConfirmationModal(false); window.location.reload(); }} */}
+          <button onClick={() => navigate('/')}
+
+           className="text-gray-400 hover:text-gray-600">
             <X className="w-5 h-5" />
           </button>
         </div>
@@ -161,14 +172,16 @@ const BookingPage: React.FC<BookingPageProps> = ({
           <div className="lg:col-span-2">
             {currentStep === 1 && (
               <RiderInfoStep
-                formData={formData}
-                handleInputChange={handleInputChange}
+                // formData={formData}
+                // handleInputChange={handleInputChange}
                 handleNextStep={handleNextStep}
                 handleBackStep={handleBackStep}
                 setCurrentStep={setCurrentStep}
                 dateRange={dateRange}
-                onDateChange={handleDateChange}
-                onDateRangeChange={setDateRange}
+                onDateChange={onDateChange}
+                formData={bookingState.customerInfo}
+                handleInputChange={(field, value) => handleCustomerInfoChange({ [field]: value })}
+                // onDateRangeChange={setDateRange}
                 // customerInfo={bookingState.customerInfo}
                 // onCustomerInfoChange={handleCustomerInfoChange}
               />
@@ -179,6 +192,8 @@ const BookingPage: React.FC<BookingPageProps> = ({
                 handleInputChange={handleInputChange}
                 handleBackStep={handleBackStep}
                 handleNextStep={handleNextStep}
+                dateRange={dateRange}
+                onDateChange={onDateChange}
               />
             )}
             {currentStep === 3 && (
@@ -190,6 +205,7 @@ const BookingPage: React.FC<BookingPageProps> = ({
                 handleSubmitBooking={handleSubmitBooking}
                 handleCustomerInfoChange={handleCustomerInfoChange}
                 dateRange={dateRange}
+                onDateChange={onDateChange}
               />
             )}
           </div>

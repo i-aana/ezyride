@@ -208,7 +208,7 @@ interface BookingDetailsModalProps {
   request: BookingRequest | null;
   isOpen: boolean;
   onClose: () => void;
-  onStatusUpdate?: () => void; // Call to refresh parent component after update
+  onStatusUpdate?: () => void;
 }
 
 const BookingDetailsModal: React.FC<BookingDetailsModalProps> = ({
@@ -232,6 +232,26 @@ const BookingDetailsModal: React.FC<BookingDetailsModalProps> = ({
         return;
       }
 
+      // Send confirmation/rejection email via Supabase Edge Function
+      const res = await fetch('https://znujbwmnpanlhwxgwlhm.supabase.co/functions/v1/send-status-update', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${import.meta.env.VITE_SUPABASE_ANON_KEY}`,
+        },
+        body: JSON.stringify({
+          fullName: request.full_name,
+          email: request.email,
+          status: newStatus,
+        }),
+      });
+
+      if (!res.ok) {
+        console.error('Failed to send status email:', await res.text());
+      } else {
+        console.log('Status email sent successfully');
+      }
+
       alert(`Request ${newStatus}!`);
       onClose();
       if (onStatusUpdate) onStatusUpdate();
@@ -253,15 +273,10 @@ const BookingDetailsModal: React.FC<BookingDetailsModalProps> = ({
           </div>
 
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            {/* Left - Rider Info */}
             <div>
               <h3 className="text-lg font-semibold mb-4">Rider Info</h3>
               <div className="space-y-3">
-                {[
-                  { label: 'Full Name', value: request.full_name },
-                  { label: 'Email', value: request.email },
-                  { label: 'Phone', value: request.phone },
-                ].map(({ label, value }) => (
+                {[{ label: 'Full Name', value: request.full_name }, { label: 'Email', value: request.email }, { label: 'Phone', value: request.phone }].map(({ label, value }) => (
                   <div key={label}>
                     <label className="block text-sm font-medium text-gray-700">{label}</label>
                     <input
@@ -273,9 +288,7 @@ const BookingDetailsModal: React.FC<BookingDetailsModalProps> = ({
                   </div>
                 ))}
                 <div>
-                  <label className="block text-sm font-medium text-gray-700">
-                    Special Request
-                  </label>
+                  <label className="block text-sm font-medium text-gray-700">Special Request</label>
                   <textarea
                     value={request.special_request || ''}
                     readOnly
@@ -286,15 +299,10 @@ const BookingDetailsModal: React.FC<BookingDetailsModalProps> = ({
               </div>
             </div>
 
-            {/* Right - Booking Summary */}
             <div>
               <h3 className="text-lg font-semibold mb-4">Booking Summary</h3>
               <div className="space-y-3">
-                {[
-                  ['Pickup Date', request.pickup_date],
-                  ['Return Date', request.return_date],
-                  ['Pickup Location', request.pickup_location || '-'],
-                ].map(([label, value]) => (
+                {[['Pickup Date', request.pickup_date], ['Return Date', request.return_date], ['Pickup Location', '231 Morgantown Road']].map(([label, value]) => (
                   <div className="flex justify-between" key={label}>
                     <span>{label}</span>
                     <span>{value}</span>
@@ -302,7 +310,6 @@ const BookingDetailsModal: React.FC<BookingDetailsModalProps> = ({
                 ))}
                 <hr />
                 <div className="space-y-2 text-sm text-gray-600">
-                  {/* Example of calculation (adjust if dynamic) */}
                   <div className="flex justify-between">
                     <span>${request.total_price / request.total_days} x {request.total_days} nights</span>
                     <span>${request.total_price.toFixed(2)}</span>
@@ -317,7 +324,7 @@ const BookingDetailsModal: React.FC<BookingDetailsModalProps> = ({
                   </div>
                   <div className="flex justify-between">
                     <span>Deposit</span>
-                    <span>$200.0</span>
+                    <span>$200.00</span>
                   </div>
                   <hr />
                   <div className="flex justify-between font-semibold text-black">
@@ -329,7 +336,6 @@ const BookingDetailsModal: React.FC<BookingDetailsModalProps> = ({
             </div>
           </div>
 
-          {/* Action Buttons */}
           <div className="mt-6 flex justify-end space-x-3">
             <button
               onClick={() => handleUpdateStatus('rejected')}

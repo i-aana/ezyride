@@ -1,5 +1,6 @@
 import React from 'react';
-import { ArrowLeft, CreditCard } from 'lucide-react';
+import { ArrowLeft, CreditCard, CalendarDays } from 'lucide-react';
+import { DateRange } from '../types';
 
 interface PaymentMethodStepProps {
   formData: any;
@@ -7,6 +8,8 @@ interface PaymentMethodStepProps {
   handleBackStep: () => void;
   handleNextStep: () => void;
   setCurrentStep: (step: number) => void;
+  dateRange: DateRange;
+  onDateChange: (field: keyof DateRange, value: Date | null) => void;
 }
 
 const PaymentMethodStep: React.FC<PaymentMethodStepProps> = ({
@@ -14,7 +17,9 @@ const PaymentMethodStep: React.FC<PaymentMethodStepProps> = ({
   handleInputChange,
   handleBackStep,
   handleNextStep,
-  setCurrentStep
+  setCurrentStep,
+  dateRange,
+  onDateChange,
 }) => {
   const isCardholderNameInvalid = formData.cardholderName && /[^a-zA-Z\s]/.test(formData.cardholderName);
   const isCardNumberInvalid = formData.cardNumber && !/^\d{16}$/.test(formData.cardNumber);
@@ -40,6 +45,13 @@ const PaymentMethodStep: React.FC<PaymentMethodStepProps> = ({
     return true;
   };
 
+  const formattedPickup = dateRange.pickupDate
+    ? dateRange.pickupDate.toLocaleDateString()
+    : 'Not selected';
+  const formattedReturn = dateRange.returnDate
+    ? dateRange.returnDate.toLocaleDateString()
+    : 'Not selected';
+
   return (
     <div className="space-y-6">
       <div className="flex items-center gap-2 mb-6">
@@ -47,6 +59,15 @@ const PaymentMethodStep: React.FC<PaymentMethodStepProps> = ({
           <ArrowLeft className="w-4 h-4 mr-1" />
           Back
         </button>
+      </div>
+
+      <div>
+        {/* <h2 className="text-xl font-semibold mb-1">Payment Method</h2> */}
+        <div className="flex items-center gap-4 text-sm text-gray-500 mb-6">
+          <CalendarDays className="w-4 h-4" />
+          <span>Pickup: <strong>{formattedPickup}</strong></span>
+          <span>Return: <strong>{formattedReturn}</strong></span>
+        </div>
       </div>
 
       <div>
@@ -108,15 +129,24 @@ const PaymentMethodStep: React.FC<PaymentMethodStepProps> = ({
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-1">Month</label>
                     <select
-                      value={formData.expirationMonth}
-                      onChange={(e) => handleInputChange('expirationMonth', e.target.value)}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                    >
-                      <option value="">MM</option>
-                      {Array.from({ length: 12 }, (_, i) => (
-                        <option key={i + 1} value={i + 1}>{String(i + 1).padStart(2, '0')}</option>
-                      ))}
-                    </select>
+                    value={formData.expirationMonth}
+                    onChange={(e) => handleInputChange('expirationMonth', e.target.value)}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  >
+                    <option value="">MM</option>
+                    {Array.from({ length: 12 }, (_, i) => {
+                      const currentYear = new Date().getFullYear();
+                      const isPastMonth =
+                        parseInt(formData.expirationYear) === currentYear && i + 1 < new Date().getMonth() + 1;
+
+                      return (
+                        <option key={i + 1} value={i + 1} disabled={isPastMonth}>
+                          {String(i + 1).padStart(2, '0')}
+                        </option>
+                      );
+                    })}
+                  </select>
+
                   </div>
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-1">Year</label>

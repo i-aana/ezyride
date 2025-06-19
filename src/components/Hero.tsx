@@ -302,6 +302,7 @@ const Hero: React.FC<HeroProps> = ({
                         }
                         const date = dateStr ? new Date(dateStr) : null;
                         onDateChange('pickupDate', date);
+                        if (date) localStorage.setItem('pickupDate', date.toISOString());
                       }}
                     />
                   </div>
@@ -324,6 +325,7 @@ const Hero: React.FC<HeroProps> = ({
                         }
                         const date = dateStr ? new Date(dateStr) : null;
                         onDateChange('returnDate', date);
+                        if (date) localStorage.setItem('returnDate', date.toISOString());
                       }}
                     />
                   </div>

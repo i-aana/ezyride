@@ -11,6 +11,7 @@ interface FinalReviewStepProps {
   handleCustomerInfoChange: (info: Partial<CustomerInfo>) => void;
   dateRange: DateRange;
   setCurrentStep: (step: number) => void;
+  onDateChange: (field: keyof DateRange, value: Date | null) => void;
 }
 
 const FinalReviewStep: React.FC<FinalReviewStepProps> = ({
@@ -18,8 +19,8 @@ const FinalReviewStep: React.FC<FinalReviewStepProps> = ({
   handleInputChange,
   handleBackStep,
   handleSubmitBooking,
-  setCurrentStep,
   dateRange,
+  onDateChange,
 }) => {
   const formattedPickup = dateRange?.pickupDate instanceof Date
     ? dateRange.pickupDate.toLocaleDateString()

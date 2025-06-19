@@ -1,9 +1,7 @@
 import React from 'react';
 import { ArrowLeft } from 'lucide-react';
-import { BookingState ,DateRange } from '../types';
+import { DateRange } from '../types';
 import { useNavigate } from 'react-router-dom';
-
-
 
 interface RiderInfoStepProps {
   formData: any;
@@ -11,11 +9,8 @@ interface RiderInfoStepProps {
   handleBackStep: () => void;
   handleNextStep: () => void;
   setCurrentStep: (step: number) => void;
-  // customerInfo: CustomerInfo;
-  // onCustomerInfoChange: (info: Partial<CustomerInfo>) => void;
   dateRange: DateRange;
-  onDateRangeChange:(range: DateRange) => void;
-  onDateChange: (field: keyof DateRange, value: Date) => void;
+  onDateChange: (field: keyof DateRange, value: Date | null) => void;
 }
 
 const RiderInfoStep: React.FC<RiderInfoStepProps> = ({
@@ -25,7 +20,7 @@ const RiderInfoStep: React.FC<RiderInfoStepProps> = ({
   handleNextStep,
   setCurrentStep,
   dateRange,
-  onDateRangeChange,
+  onDateChange,
 }) => {
   const navigate = useNavigate();
 
@@ -36,8 +31,7 @@ const RiderInfoStep: React.FC<RiderInfoStepProps> = ({
   return (
     <div className="space-y-6">
       <div className="flex items-center gap-2 mb-6">
-        <button onClick={() => navigate('/')}
-         className="flex items-center text-gray-600 hover:text-gray-800">
+        <button onClick={() => navigate('/')} className="flex items-center text-gray-600 hover:text-gray-800">
           <ArrowLeft className="w-4 h-4 mr-1" />
           Back
         </button>
@@ -145,27 +139,30 @@ const RiderInfoStep: React.FC<RiderInfoStepProps> = ({
       </div>
 
       {/* Date Pickers */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-4">
-        {/* Pickup Date */}
+      {/* <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-4">
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-1">Pickup Date</label>
           <input
             type="date"
             value={dateRange.pickupDate ? dateRange.pickupDate.toISOString().split('T')[0] : ''}
-            onChange={e => onDateChange('pickupDate', new Date(e.target.value))}
+            onChange={(e) =>
+              onDateChange('pickupDate', e.target.value ? new Date(e.target.value) : null)
+            }
+            className="w-full px-3 py-2 border border-gray-300 rounded-md"
           />
         </div>
-
-        {/* Return Date */}
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-1">Return Date</label>
           <input
             type="date"
             value={dateRange.returnDate ? dateRange.returnDate.toISOString().split('T')[0] : ''}
-            onChange={e => onDateChange('returnDate', new Date(e.target.value))}
+            onChange={(e) =>
+              onDateChange('returnDate', e.target.value ? new Date(e.target.value) : null)
+            }
+            className="w-full px-3 py-2 border border-gray-300 rounded-md"
           />
-        </div>
-      </div>
+        </div> */}
+      {/* </div> */}
 
       {/* Buttons */}
       <div className="flex gap-4 pt-6">

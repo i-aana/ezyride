@@ -42,24 +42,23 @@ const PriceUpdateComponent: React.FC = () => {
       end: parseISO(dateEnd)
     });
 
-    const updates = dateRange.map(date => {
+    for (const date of dateRange) {
       const formattedDate = format(date, 'yyyy-MM-dd');
-      return {
+
+      const update = {
         date: formattedDate,
-        base_price: action === 'price-update' ? Number(price) : 0,
+        base_price: action === 'price-update' ? Number(price) : undefined,
         is_available: action === 'block' ? false : true,
         status: action === 'block' ? 'blocked' : 'available'
       };
-    });
 
-    for (const update of updates) {
       const { error } = await supabase
         .from('calendar_prices')
         .upsert(update, { onConflict: ['date'] });
 
       if (error) {
-        console.error('Error updating date:', update.date, error.message);
-        alert(`Failed on ${update.date}: ${error.message}`);
+        console.error('Error updating date:', formattedDate, error.message);
+        alert(`Failed on ${formattedDate}: ${error.message}`);
         return;
       }
     }
@@ -75,22 +74,38 @@ const PriceUpdateComponent: React.FC = () => {
       end: parseISO(dateEnd)
     });
 
-    const updates = dateRange.map(date => ({
-      date: format(date, 'yyyy-MM-dd'),
-      deposit: Number(depositTrips),
-      insurance_fee: Number(insuranceTrips),
-      extra_miles_fee: Number(additionalMiles),
-      service_fee: Number(serviceFees)
-    }));
+    for (const date of dateRange) {
+      const formattedDate = format(date, 'yyyy-MM-dd');
 
-    for (const update of updates) {
+      // Fetch existing base_price
+      const { data: existing, error: fetchError } = await supabase
+        .from('calendar_prices')
+        .select('base_price')
+        .eq('date', formattedDate)
+        .single();
+
+      if (fetchError && fetchError.code !== 'PGRST116') { // skip if no row found
+        console.error('Fetch error:', fetchError.message);
+        alert(`Failed to fetch existing data for ${formattedDate}: ${fetchError.message}`);
+        return;
+      }
+
+      const update = {
+        date: formattedDate,
+        base_price: existing?.base_price ?? 0,
+        deposit: Number(depositTrips),
+        insurance_fee: Number(insuranceTrips),
+        extra_miles_fee: Number(additionalMiles),
+        service_fee: Number(serviceFees)
+      };
+
       const { error } = await supabase
         .from('calendar_prices')
         .upsert(update, { onConflict: ['date'] });
 
       if (error) {
-        console.error('Error updating cost for:', update.date, error.message);
-        alert(`Failed on ${update.date}: ${error.message}`);
+        console.error('Error updating cost for:', formattedDate, error.message);
+        alert(`Failed on ${formattedDate}: ${error.message}`);
         return;
       }
     }
@@ -119,36 +134,30 @@ const PriceUpdateComponent: React.FC = () => {
 
           <div className="grid grid-cols-2 gap-4 mb-6">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Date Start
-              </label>
+              <label className="block text-sm font-medium text-gray-700 mb-2">Date Start</label>
               <input
                 type="date"
                 value={formData.dateStart}
                 onChange={(e) => handleInputChange('dateStart', e.target.value)}
-                className="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full px-3 py-2 border rounded-md"
                 min={today}
               />
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Date End
-              </label>
+              <label className="block text-sm font-medium text-gray-700 mb-2">Date End</label>
               <input
                 type="date"
                 value={formData.dateEnd}
                 onChange={(e) => handleInputChange('dateEnd', e.target.value)}
-                className="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full px-3 py-2 border rounded-md"
                 min={formData.dateStart || today}
               />
             </div>
           </div>
 
-          {formData.dateStart && formData.dateEnd && (
-            <div className="mb-4 p-3 bg-blue-50 rounded-md text-sm text-blue-800">
-              Selected Range: {formatDate(formData.dateStart)} - {formatDate(formData.dateEnd)}
-            </div>
-          )}
+          <div className="mb-4 p-3 bg-blue-50 rounded-md text-sm text-blue-800">
+            Selected Range: {formatDate(formData.dateStart)} - {formatDate(formData.dateEnd)}
+          </div>
 
           <div className="mb-6">
             <label className="block text-sm font-medium text-gray-700 mb-3">Action</label>
@@ -161,7 +170,7 @@ const PriceUpdateComponent: React.FC = () => {
                     value={act}
                     checked={formData.action === act}
                     onChange={(e) => handleInputChange('action', e.target.value as any)}
-                    className="mr-2 text-blue-600 focus:ring-blue-500"
+                    className="mr-2 text-blue-600"
                   />
                   {act.replace('-', ' ').toUpperCase()}
                 </label>
@@ -173,7 +182,7 @@ const PriceUpdateComponent: React.FC = () => {
                     type="number"
                     value={formData.price}
                     onChange={(e) => handleInputChange('price', e.target.value)}
-                    className="px-3 py-1 border border-gray-300 rounded-md w-24 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    className="px-3 py-1 border w-24 rounded-md"
                     placeholder="Price"
                     min="0"
                     step="1"
@@ -185,7 +194,7 @@ const PriceUpdateComponent: React.FC = () => {
 
           <button
             onClick={handleDateUpdate}
-            className="bg-blue-500 text-white px-6 py-2 rounded-md hover:bg-blue-600 transition-colors mb-8"
+            className="bg-blue-500 text-white px-6 py-2 rounded-md hover:bg-blue-600 mb-8"
           >
             Update Dates
           </button>
@@ -208,7 +217,7 @@ const PriceUpdateComponent: React.FC = () => {
                     type="number"
                     value={formData[key as keyof PriceUpdateState]}
                     onChange={(e) => handleInputChange(key as keyof PriceUpdateState, e.target.value)}
-                    className="px-3 py-2 border rounded-md w-24 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    className="px-3 py-2 border rounded-md w-24"
                     min="0"
                     step={key === 'additionalMiles' ? '0.01' : '1'}
                   />
@@ -219,7 +228,7 @@ const PriceUpdateComponent: React.FC = () => {
 
           <button
             onClick={handleCostUpdate}
-            className="bg-blue-500 text-white px-6 py-2 rounded-md hover:bg-blue-600 transition-colors mt-6"
+            className="bg-blue-500 text-white px-6 py-2 rounded-md hover:bg-blue-600 mt-6"
           >
             Update Costs
           </button>
@@ -230,4 +239,3 @@ const PriceUpdateComponent: React.FC = () => {
 };
 
 export default PriceUpdateComponent;
-        

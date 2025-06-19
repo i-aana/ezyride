@@ -1,4 +1,12 @@
 // src/types/index.ts
+export interface CustomerInfo {
+  firstName: string;
+  lastName: string;
+  email: string;
+  phone: string;
+  specialRequest: string;
+  agreeTerms: boolean;
+}
 
 export interface DateRange {
   pickupDate: Date | null;
@@ -16,12 +24,12 @@ export interface Car {
   features: string[];
 }
 
-export interface CustomerInfo {
-  fullName: string;
-  email: string;
-  phone: string;
-  specialRequests: string;
-}
+// export interface CustomerInfo {
+//   fullName: string;
+//   email: string;
+//   phone: string;
+//   specialRequests: string;
+// }
 
 export interface BookingState {
   step: number;
