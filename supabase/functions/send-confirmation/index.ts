@@ -42,7 +42,9 @@ serve(async (req: Request) => {
       body: JSON.stringify({
         personalizations: [
           {
-            to: [{ email: "aanal.s.patel1705@gmail.com" }],
+            to: [{ email: "aanal.s.patel1705@gmail.com" }
+              { email: "aksh.creativetime@gmail.com" },
+            ],
             subject: `New Booking Request - ${bookingId}`,
           },
         ],
