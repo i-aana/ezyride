@@ -108,6 +108,15 @@ const BookingPageWrapper = () => {
 
       const newBookingId = `DR${Math.floor(100000 + Math.random() * 900000)}`;
       setBookingId(newBookingId);
+      console.log("Sending to Edge Function:", {
+        fullName,
+        email: bookingState.customerInfo.email,
+        bookingId: newBookingId,
+        totalPrice,
+        pickupDate: pickupDateStr,
+        returnDate: returnDateStr,
+        carName: bookingState.selectedCar.name,
+      });
 
       await sendEmailToHost({
         fullName,
