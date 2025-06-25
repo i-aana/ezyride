@@ -17,8 +17,8 @@ interface PriceUpdateState {
 
 const PriceUpdateComponent: React.FC = () => {
   const [formData, setFormData] = useState<PriceUpdateState>({
-    dateStart: '2025-06-15',
-    dateEnd: '2025-06-15',
+    dateStart: '',
+    dateEnd: '',
     action: 'block',
     price: '220',
     depositTrips: '220',
@@ -36,60 +36,70 @@ const PriceUpdateComponent: React.FC = () => {
 
   const handleDateUpdate = async () => {
     const { dateStart, dateEnd, action, price } = formData;
-
+  
+    if (!dateStart || !dateEnd) {
+      alert('Please select both start and end dates.');
+      return;
+    }
+  
     const dateRange = eachDayOfInterval({
       start: parseISO(dateStart),
       end: parseISO(dateEnd)
     });
-
+  
     for (const date of dateRange) {
       const formattedDate = format(date, 'yyyy-MM-dd');
-
+  
       const update = {
         date: formattedDate,
         base_price: action === 'price-update' ? Number(price) : undefined,
         is_available: action === 'block' ? false : true,
         status: action === 'block' ? 'blocked' : 'available'
       };
-
+  
       const { error } = await supabase
         .from('calendar_prices')
         .upsert(update, { onConflict: ['date'] });
-
+  
       if (error) {
         console.error('Error updating date:', formattedDate, error.message);
         alert(`Failed on ${formattedDate}: ${error.message}`);
         return;
       }
     }
-
+  
     alert(`Dates updated successfully! Action: ${action}`);
   };
+  
 
   const handleCostUpdate = async () => {
     const { dateStart, dateEnd, depositTrips, insuranceTrips, additionalMiles, serviceFees } = formData;
-
+  
+    if (!dateStart || !dateEnd) {
+      alert('Please select both start and end dates.');
+      return;
+    }
+  
     const dateRange = eachDayOfInterval({
       start: parseISO(dateStart),
       end: parseISO(dateEnd)
     });
-
+  
     for (const date of dateRange) {
       const formattedDate = format(date, 'yyyy-MM-dd');
-
-      // Fetch existing base_price
+  
       const { data: existing, error: fetchError } = await supabase
         .from('calendar_prices')
         .select('base_price')
         .eq('date', formattedDate)
         .single();
-
-      if (fetchError && fetchError.code !== 'PGRST116') { // skip if no row found
+  
+      if (fetchError && fetchError.code !== 'PGRST116') {
         console.error('Fetch error:', fetchError.message);
         alert(`Failed to fetch existing data for ${formattedDate}: ${fetchError.message}`);
         return;
       }
-
+  
       const update = {
         date: formattedDate,
         base_price: existing?.base_price ?? 0,
@@ -98,18 +108,18 @@ const PriceUpdateComponent: React.FC = () => {
         extra_miles_fee: Number(additionalMiles),
         service_fee: Number(serviceFees)
       };
-
+  
       const { error } = await supabase
         .from('calendar_prices')
         .upsert(update, { onConflict: ['date'] });
-
+  
       if (error) {
         console.error('Error updating cost for:', formattedDate, error.message);
         alert(`Failed on ${formattedDate}: ${error.message}`);
         return;
       }
     }
-
+  
     alert('Cost settings updated successfully!');
   };
 
