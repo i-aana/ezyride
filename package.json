@@ -12,13 +12,14 @@
   "dependencies": {
     "@sendgrid/mail": "^8.1.5",
     "@supabase/supabase-js": "^2.50.0",
+    "@types/react-datepicker": "^6.2.0",
     "bcryptjs": "^3.0.2",
     "date-fns": "^4.1.0",
     "dotenv": "^16.5.0",
     "lucide-react": "^0.344.0",
     "next": "^15.3.2",
     "react": "^18.3.1",
-    "react-datepicker": "^8.4.0",
+    "react-datepicker": "^4.25.0",
     "react-dom": "^18.3.1",
     "react-router-dom": "^7.6.2"
   },
