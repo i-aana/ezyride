@@ -56,7 +56,7 @@ import React, { useEffect, useState } from 'react';
 import { DateRange } from '../types';
 import { supabase } from '../utils/supabaseClient';
 // import { eachDayOfInterval, format } from 'date-fns';
-import { fetchTotalPrice } from '../utils/priceCalculator';
+import { fetchTotalPrice } from '../utils/PriceCalculator';
 
 
 interface BookingSummaryProps {

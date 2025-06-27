@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { X } from 'lucide-react';
 import { supabase } from '../../utils/supabaseClient';
-import { fetchTotalPrice } from '../../utils/priceCalculator';
+import { fetchTotalPrice } from '../../utils/PriceCalculator.ts';
 import { parseISO } from 'date-fns';
 
 
