@@ -101,7 +101,7 @@ const RiderInfoStep: React.FC<RiderInfoStepProps> = ({
           <input
             type="tel"
             value={formData.phone}
-            onChange={(e) => handleInputChange('phone', e.target.value.replace(/[^0-9]/g, ''))}
+            onChange={(e) => handleInputChange('phone', e.target.value.replace(/[^0-9]/g, '').slice(0, 10))}
             className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 ${
               phoneError ? 'border-red-500 bg-red-50' : 'border-gray-300'
             }`}

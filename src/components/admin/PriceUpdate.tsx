@@ -44,27 +44,77 @@ const PriceUpdateComponent: React.FC = () => {
   
     const dateRange = eachDayOfInterval({
       start: parseISO(dateStart),
-      end: parseISO(dateEnd)
+      end: parseISO(dateEnd),
     });
   
     for (const date of dateRange) {
       const formattedDate = format(date, 'yyyy-MM-dd');
   
-      const update = {
-        date: formattedDate,
-        base_price: action === 'price-update' ? Number(price) : undefined,
-        is_available: action === 'block' ? false : true,
-        status: action === 'block' ? 'blocked' : 'available'
-      };
+      if (action === 'price-update') {
+        // Full upsert with required fields
+        const { error } = await supabase
+          .from('calendar_prices')
+          .upsert(
+            {
+              date: formattedDate,
+              base_price: Number(price),
+              is_available: true,
+              status: 'available',
+            },
+            { onConflict: ['date'] }
+          );
   
-      const { error } = await supabase
-        .from('calendar_prices')
-        .upsert(update, { onConflict: ['date'] });
+        if (error) {
+          console.error('Error updating price:', formattedDate, error.message);
+          alert(`Failed on ${formattedDate}: ${error.message}`);
+          return;
+        }
+      } else {
+        // First check if row exists
+        const { data: existing, error: fetchError } = await supabase
+          .from('calendar_prices')
+          .select('id')
+          .eq('date', formattedDate)
+          .single();
   
-      if (error) {
-        console.error('Error updating date:', formattedDate, error.message);
-        alert(`Failed on ${formattedDate}: ${error.message}`);
-        return;
+        if (fetchError && fetchError.code !== 'PGRST116') {
+          console.error('Fetch error:', formattedDate, fetchError.message);
+          alert(`Failed to fetch data for ${formattedDate}: ${fetchError.message}`);
+          return;
+        }
+  
+        if (existing) {
+          // Row exists: update only status and availability
+          const { error: updateError } = await supabase
+            .from('calendar_prices')
+            .update({
+              is_available: action === 'block' ? false : true,
+              status: action === 'block' ? 'blocked' : 'available',
+            })
+            .eq('date', formattedDate);
+  
+          if (updateError) {
+            console.error('Error updating date:', formattedDate, updateError.message);
+            alert(`Failed on ${formattedDate}: ${updateError.message}`);
+            return;
+          }
+        } else {
+          // Row doesn't exist: insert with dummy base_price (or decide how you want to handle this)
+          const { error: insertError } = await supabase
+            .from('calendar_prices')
+            .insert({
+              date: formattedDate,
+              base_price: 0, // You can change this default if needed
+              is_available: action === 'block' ? false : true,
+              status: action === 'block' ? 'blocked' : 'available',
+            });
+  
+          if (insertError) {
+            console.error('Insert error:', formattedDate, insertError.message);
+            alert(`Failed on ${formattedDate}: ${insertError.message}`);
+            return;
+          }
+        }
       }
     }
   

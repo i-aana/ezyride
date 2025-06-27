@@ -219,47 +219,127 @@ const BookingDetailsModal: React.FC<BookingDetailsModalProps> = ({
 }) => {
   if (!isOpen || !request) return null;
 
-  const handleUpdateStatus = async (newStatus: 'confirmed' | 'rejected') => {
-    try {
-      const { error } = await supabase
-        .from('bookings1')
-        .update({ status: newStatus })
-        .eq('id', request.id);
+  // Complete handleUpdateStatus function - replace the entire function:
 
-      if (error) {
-        console.error('Error updating status:', error.message);
-        alert('Failed to update request status');
+const handleUpdateStatus = async (newStatus: 'confirmed' | 'rejected') => {
+  try {
+    // Step 1: Update bookings1 table
+    const { error } = await supabase
+      .from('bookings1')
+      .update({ status: newStatus })
+      .eq('id', request.id);
+
+    if (error) {
+      console.error('Error updating status:', error.message);
+      alert('Failed to update request status');
+      return;
+    }
+
+    const pickupDate = new Date(request.pickup_date);
+    const returnDate = new Date(request.return_date);
+    const datesToUpdate: string[] = [];
+
+    for (let d = new Date(pickupDate); d <= returnDate; d.setDate(d.getDate() + 1)) {
+      datesToUpdate.push(d.toISOString().split('T')[0]);
+    }
+
+    // ✅ If accepted, mark dates as booked
+    if (newStatus === 'confirmed') {
+      const { error: calError } = await supabase
+        .from('calendar_prices')
+        .update({ status: 'booked', is_available: false })
+        .in('date', datesToUpdate);
+
+      if (calError) {
+        console.error('Error updating calendar:', calError.message);
+        alert('Failed to update calendar');
         return;
       }
+    }
 
-      // Send confirmation/rejection email via Supabase Edge Function
-      const res = await fetch('https://znujbwmnpanlhwxgwlhm.supabase.co/functions/v1/send-status-update', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${import.meta.env.VITE_SUPABASE_ANON_KEY}`,
-        },
-        body: JSON.stringify({
-          fullName: request.full_name,
-          email: request.email,
-          status: newStatus,
-        }),
-      });
+    // ✅ If rejected, conditionally update to available
+    if (newStatus === 'rejected') {
+      const pickupDate = new Date(request.pickup_date);
+      const returnDate = new Date(request.return_date);
+      const datesToUpdate: string[] = [];
 
-      if (!res.ok) {
-        console.error('Failed to send status email:', await res.text());
-      } else {
-        console.log('Status email sent successfully');
+      for (
+        let d = new Date(pickupDate);
+        d <= returnDate;
+        d.setDate(d.getDate() + 1)
+      ) {
+        datesToUpdate.push(d.toISOString().split('T')[0]);
       }
 
-      alert(`Request ${newStatus}!`);
-      onClose();
-      if (onStatusUpdate) onStatusUpdate();
-    } catch (err) {
-      console.error('Unexpected error:', err);
-      alert('Something went wrong');
+      // Check for remaining non-rejected bookings in that date range
+      // IMPORTANT: Exclude the current booking that was just rejected
+      const { data: overlappingBookings, error: bookingError } = await supabase
+        .from('bookings1')
+        .select('id, pickup_date, return_date, status')
+        .or('status.eq.pending,status.eq.confirmed')
+        .neq('id', request.id); // ✅ Exclude the current booking
+
+      if (bookingError) {
+        console.error('Error checking bookings:', bookingError.message);
+      } else {
+        // Find if any other active booking exists for those same dates
+        const hasOtherRequests = datesToUpdate.some((dateStr) => {
+          return overlappingBookings.some((booking) => {
+            const start = new Date(booking.pickup_date);
+            const end = new Date(booking.return_date);
+            const current = new Date(dateStr);
+            return current >= start && current <= end;
+          });
+        });
+
+        // If no other active booking exists, set dates back to available
+        if (!hasOtherRequests) {
+          const { error: calendarUpdateError } = await supabase
+            .from('calendar_prices')
+            .update({ is_available: true, status: 'available' })
+            .in('date', datesToUpdate);
+
+          if (calendarUpdateError) {
+            console.error('Failed to update calendar:', calendarUpdateError.message);
+          } else {
+            console.log('Calendar dates updated to available');
+          }
+        } else {
+          console.log('Other bookings exist for these dates, keeping status as booked');
+        }
+      }
     }
-  };
+
+    // ✅ Send email via Supabase Edge Function
+    const res = await fetch('https://znujbwmnpanlhwxgwlhm.supabase.co/functions/v1/send-status-update', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${import.meta.env.VITE_SUPABASE_ANON_KEY}`,
+      },
+      body: JSON.stringify({
+        fullName: request.full_name,
+        email: request.email,
+        status: newStatus,
+      }),
+    });
+
+    if (!res.ok) {
+      console.error('Failed to send status email:', await res.text());
+    } else {
+      console.log('Status email sent successfully');
+    }
+
+    alert(`Request ${newStatus}!`);
+    onClose();
+    if (onStatusUpdate) onStatusUpdate();
+
+  } catch (err) {
+    console.error('Unexpected error:', err);
+    alert('Something went wrong');
+  }
+};
+  
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">

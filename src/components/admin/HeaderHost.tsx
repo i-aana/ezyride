@@ -10,7 +10,8 @@ interface HeaderHostProps {
 
 const HeaderHost: React.FC<HeaderHostProps> = ({ activeTab, setActiveTab, onLogout }) => {
   return (
-    <header className="bg-white shadow-sm border-b">
+    <header className="bg-white shadow-sm border-b fixed top-0 left-0 right-0 z-50">
+    {/* <div className="pt-20"> */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-16">
           <div className="flex items-center">
@@ -28,10 +29,10 @@ const HeaderHost: React.FC<HeaderHostProps> = ({ activeTab, setActiveTab, onLogo
               onClick={() => setActiveTab('calendar')}
               className={`inline-flex items-center px-3 py-2 text-sm font-medium rounded-md ${
                 activeTab === 'calendar' 
-                  ? 'text-blue-600 bg-blue-50' 
-                  : 'text-gray-500 hover:text-gray-700'
+                ? 'text-blue-600 bg-blue-50' 
+                : 'text-gray-500 hover:text-gray-700'
               }`}
-            >
+              >
               <Calendar className="w-4 h-4 mr-2" />
               CALENDAR
             </button>
@@ -41,10 +42,10 @@ const HeaderHost: React.FC<HeaderHostProps> = ({ activeTab, setActiveTab, onLogo
               onClick={() => setActiveTab('price-update')}
               className={`inline-flex items-center px-3 py-2 text-sm font-medium rounded-md ${
                 activeTab === 'price-update' 
-                  ? 'text-blue-600 bg-blue-50' 
-                  : 'text-gray-500 hover:text-gray-700'
+                ? 'text-blue-600 bg-blue-50' 
+                : 'text-gray-500 hover:text-gray-700'
               }`}
-            >
+              >
               <DollarSign className="w-4 h-4 mr-2" />
               PRICE UPDATE
             </button>
@@ -52,7 +53,7 @@ const HeaderHost: React.FC<HeaderHostProps> = ({ activeTab, setActiveTab, onLogo
               onClick={() => setActiveTab('requests')}
               className={`inline-flex items-center px-3 py-2 text-sm font-medium rounded-md ${
                 activeTab === 'requests' 
-                  ? 'text-blue-600 bg-blue-50' 
+                ? 'text-blue-600 bg-blue-50' 
                   : 'text-gray-500 hover:text-gray-700'
               }`}
             >
@@ -70,6 +71,7 @@ const HeaderHost: React.FC<HeaderHostProps> = ({ activeTab, setActiveTab, onLogo
           </nav>
         </div>
       </div>
+    {/* </div> */}
     </header>
   );
 };

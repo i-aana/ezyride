@@ -6,6 +6,7 @@ import FinalReviewStep from './FinalReviewStep';
 import { BookingState, CustomerInfo, DateRange } from '../types'; // Adjust import based on your structure
 import BookingSummary from './BookingSummary';
 import { useNavigate } from 'react-router-dom';
+import { supabase} from '../utils/supabaseClient.ts';
 
 interface BookingPageProps {
  
@@ -80,28 +81,53 @@ const handleDateChange = (field: keyof DateRange, value: Date | null) => {
 
   const handleSubmitBooking = async () => {
     const fullName = `${formData.firstName} ${formData.lastName}`;
-    
-    
+  
     handleCustomerInfoChange({
       fullName,
       email: formData.email,
       phone: formData.phone,
       specialRequests: formData.specialRequest,
       pickupDate: dateRange.pickupDate,
-      returnDate: dateRange.returnDate
+      returnDate: dateRange.returnDate,
     });
-    
+  
     await handleCustomerFormSubmit();
     console.log("handleCustomerInfoChange in BookingPage:", handleCustomerInfoChange);
-
+  
+    // 👇 New: Update calendar_prices for selected date range
+    if (dateRange.pickupDate && dateRange.returnDate) {
+      const start = new Date(dateRange.pickupDate);
+      const end = new Date(dateRange.returnDate);
+      const datesToUpdate: string[] = [];
+  
+      for (let d = new Date(start); d <= end; d.setDate(d.getDate() + 1)) {
+        datesToUpdate.push(d.toISOString().split("T")[0]); // format: yyyy-mm-dd
+      }
+  
+      const { error: updateError } = await supabase
+        .from("calendar_prices")
+        .update({ status: "request"})
+        .in("date", datesToUpdate);
+  
+      if (updateError) {
+        console.error("Failed to update calendar_prices:", updateError);
+        alert("Failed to reserve selected dates.");
+      } else {
+        console.log("calendar_prices updated successfully for requested dates");
+      }
+    } else {
+      console.warn("Date range is incomplete, skipping calendar update");
+    }
+  
     const newRequestId = Math.floor(Math.random() * 9000000) + 1000000;
-    setConfirmationData(prev => ({
+    setConfirmationData((prev) => ({
       ...prev,
       requestId: newRequestId.toString(),
     }));
-
+  
     setShowConfirmationModal(true);
   };
+  
 
   // const BookingSummary: React.FC<{ formData: typeof formData; dateRange: DateRange }> = ({ formData, dateRange }) => (
     <div className="bg-gray-50 p-6 rounded-lg">
