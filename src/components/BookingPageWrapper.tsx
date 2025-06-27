@@ -6,7 +6,7 @@ import { BookingState, CustomerInfo } from '../types';
 import { car } from '../data/mockData';
 import { calculateTotalDays, calculateTotalPrice } from '../utils/bookingUtils';
 import { supabase } from '../utils/supabaseClient';
-import { fetchTotalPrice } from '../utils/PriceCalculator';
+import { fetchTotalPrice } from '../utils/PriceCalculator.ts';
 
 const sendEmailToHost = async ({
   fullName,
