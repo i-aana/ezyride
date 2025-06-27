@@ -130,32 +130,32 @@ const handleDateChange = (field: keyof DateRange, value: Date | null) => {
   
 
   // const BookingSummary: React.FC<{ formData: typeof formData; dateRange: DateRange }> = ({ formData, dateRange }) => (
-    <div className="bg-gray-50 p-6 rounded-lg">
-      <h3 className="text-lg font-semibold mb-4 text-gray-800">Booking Summary</h3>
-      <div className="space-y-4">
-        <div className="flex justify-between">
-          <span>Pickup Date</span>
-          <span>{dateRange.pickupDate instanceof Date ? dateRange.pickupDate.toLocaleDateString() : 'Not selected'}</span>
-        </div>
-        <div className="flex justify-between">
-          <span>Return Date</span>
-          <span>{dateRange.returnDate instanceof Date ? dateRange.returnDate.toLocaleDateString() : 'Not selected'}</span>
-        </div>
-        <div><strong>Pickup Location:</strong> 231 Morgantown Rd</div>
-        <div className="border-t pt-4">
-          <h4 className="font-medium mb-2 text-gray-700">Cost Details</h4>
-          {/* Cost breakdown (static for now) */}
-          <div className="flex justify-between"><span>$200.00 x 2 nights</span><span>$400.00</span></div>
-          <div className="flex justify-between"><span>$210.00 x 2 nights</span><span>$420.00</span></div>
-          <div className="flex justify-between"><span>Insurance Coverage</span><span>$120.00</span></div>
-          <div className="flex justify-between"><span>Service Fee</span><span>$50.00</span></div>
-          <div className="flex justify-between"><span>800 miles included</span><span>$0.00</span></div>
-          <div className="text-xs text-gray-500">* Additional Miles 0.50/mile</div>
-          <div className="flex justify-between border-t pt-2"><span>Deposit</span><span>$200.00</span></div>
-          <div className="flex justify-between font-semibold text-lg border-t pt-2"><span>Total Cost</span><span>$1190.00</span></div>
-        </div>
-      </div>
-    </div>
+    // <div className="bg-gray-50 p-6 rounded-lg">
+    //   <h3 className="text-lg font-semibold mb-4 text-gray-800">Booking Summary</h3>
+    //   <div className="space-y-4">
+    //     <div className="flex justify-between">
+    //       <span>Pickup Date</span>
+    //       <span>{dateRange.pickupDate instanceof Date ? dateRange.pickupDate.toLocaleDateString() : 'Not selected'}</span>
+    //     </div>
+    //     <div className="flex justify-between">
+    //       <span>Return Date</span>
+    //       <span>{dateRange.returnDate instanceof Date ? dateRange.returnDate.toLocaleDateString() : 'Not selected'}</span>
+    //     </div>
+    //     <div><strong>Pickup Location:</strong> 231 Morgantown Rd</div>
+    //     <div className="border-t pt-4">
+    //       <h4 className="font-medium mb-2 text-gray-700">Cost Details</h4>
+    //       {/* Cost breakdown (static for now) */}
+    //       <div className="flex justify-between"><span>$200.00 x 2 nights</span><span>$400.00</span></div>
+    //       <div className="flex justify-between"><span>$210.00 x 2 nights</span><span>$420.00</span></div>
+    //       <div className="flex justify-between"><span>Insurance Coverage</span><span>$120.00</span></div>
+    //       <div className="flex justify-between"><span>Service Fee</span><span>$50.00</span></div>
+    //       <div className="flex justify-between"><span>800 miles included</span><span>$0.00</span></div>
+    //       <div className="text-xs text-gray-500">* Additional Miles 0.50/mile</div>
+    //       <div className="flex justify-between border-t pt-2"><span>Deposit</span><span>$200.00</span></div>
+    //       <div className="flex justify-between font-semibold text-lg border-t pt-2"><span>Total Cost</span><span>$1190.00</span></div>
+    //     </div>
+    //   </div>
+    // </div>
   // );
 
   const ConfirmationModal = () => (

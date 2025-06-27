@@ -6,6 +6,7 @@ import { BookingState, CustomerInfo } from '../types';
 import { car } from '../data/mockData';
 import { calculateTotalDays, calculateTotalPrice } from '../utils/bookingUtils';
 import { supabase } from '../utils/supabaseClient';
+import { fetchTotalPrice } from '../utils/priceCalculator';
 
 const sendEmailToHost = async ({
   fullName,
@@ -76,14 +77,16 @@ const BookingPageWrapper = () => {
     try {
       const { pickupDate, returnDate } = bookingState.dateRange;
       const totalDays = calculateTotalDays(pickupDate, returnDate);
-      const totalPrice = calculateTotalPrice(totalDays, bookingState.selectedCar.price);
+      const costBreakdown = await fetchTotalPrice(pickupDate, returnDate);
+      const totalPrice = costBreakdown.total;
+
       const pickupDateStr = pickupDate?.toISOString() ?? '';
       const returnDateStr = returnDate?.toISOString() ?? '';
       console.log("Customer Info before insert:", bookingState.customerInfo);
       const fullName = [bookingState.customerInfo.firstName, bookingState.customerInfo.lastName]
-  .filter(Boolean)
-  .join(' ')
-  .trim();
+      .filter(Boolean)
+      .join(' ')
+      .trim();
 
       // Insert into Supabase
       const { error } = await supabase.from('bookings1').insert([

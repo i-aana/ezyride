@@ -123,55 +123,30 @@ const PriceUpdateComponent: React.FC = () => {
   
 
   const handleCostUpdate = async () => {
-    const { dateStart, dateEnd, depositTrips, insuranceTrips, additionalMiles, serviceFees } = formData;
+    const { depositTrips, insuranceTrips, additionalMiles, serviceFees ,milesIncluded} = formData;
   
-    if (!dateStart || !dateEnd) {
-      alert('Please select both start and end dates.');
+    const update = {
+      deposit: Number(depositTrips),
+      insurance_fee: Number(insuranceTrips),
+      extra_miles_fee: Number(additionalMiles),
+      service_fee: Number(serviceFees),
+      miles_included:Number(milesIncluded)
+    };
+  
+    const { error } = await supabase
+      .from('extra_costs')
+      .update(update)
+      .eq('id', 1); // assuming there's only one row with ID = 1
+  
+    if (error) {
+      console.error('Error updating trip cost settings:', error.message);
+      alert(`Failed to update trip costs: ${error.message}`);
       return;
     }
   
-    const dateRange = eachDayOfInterval({
-      start: parseISO(dateStart),
-      end: parseISO(dateEnd)
-    });
-  
-    for (const date of dateRange) {
-      const formattedDate = format(date, 'yyyy-MM-dd');
-  
-      const { data: existing, error: fetchError } = await supabase
-        .from('calendar_prices')
-        .select('base_price')
-        .eq('date', formattedDate)
-        .single();
-  
-      if (fetchError && fetchError.code !== 'PGRST116') {
-        console.error('Fetch error:', fetchError.message);
-        alert(`Failed to fetch existing data for ${formattedDate}: ${fetchError.message}`);
-        return;
-      }
-  
-      const update = {
-        date: formattedDate,
-        base_price: existing?.base_price ?? 0,
-        deposit: Number(depositTrips),
-        insurance_fee: Number(insuranceTrips),
-        extra_miles_fee: Number(additionalMiles),
-        service_fee: Number(serviceFees)
-      };
-  
-      const { error } = await supabase
-        .from('calendar_prices')
-        .upsert(update, { onConflict: ['date'] });
-  
-      if (error) {
-        console.error('Error updating cost for:', formattedDate, error.message);
-        alert(`Failed on ${formattedDate}: ${error.message}`);
-        return;
-      }
-    }
-  
-    alert('Cost settings updated successfully!');
+    alert('Trip cost settings updated successfully!');
   };
+  
 
   const formatDate = (dateString: string): string => {
     const date = new Date(dateString);
@@ -268,6 +243,7 @@ const PriceUpdateComponent: React.FC = () => {
               { key: 'insuranceTrips', label: 'Insurance per Trip' },
               { key: 'additionalMiles', label: 'Additional Miles Charge' },
               { key: 'serviceFees', label: 'Service Fees' },
+              {key : 'milesIncluded', label: 'Miles Included'}
             ].map(({ key, label }) => (
               <div key={key} className="flex items-center justify-between">
                 <label className="text-sm font-medium text-gray-700">{label}</label>
