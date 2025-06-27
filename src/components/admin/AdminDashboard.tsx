@@ -140,8 +140,8 @@ const AdminDashboard = () => {
     const lastActivity = parseInt(localStorage.getItem('lastActivityTime') || '0');
 
     const now = Date.now();
-    const sessionLimit = 3 * 60 * 1000; // 30 minutes
-    const inactivityLimit = 1 * 60 * 1000; // 5 minutes
+    const sessionLimit = 30 * 60 * 1000; // 30 minutes
+    const inactivityLimit = 5 * 60 * 1000; // 5 minutes
 
     if (isLoggedIn !== 'true') {
       navigate('/admin-login');
