@@ -30,6 +30,7 @@ export const fetchTotalPrice = async (pickupDate: Date, returnDate: Date) => {
     deposit: costData.deposit,
     extraMilesFee: costData.extra_miles_fee,
     baseRate: basePrices.length ? baseTotal / basePrices.length : 0,
-    baseDays: basePrices.length
+    baseDays: basePrices.length,
+    milesIncluded: costData.miles_included
   };
 };
