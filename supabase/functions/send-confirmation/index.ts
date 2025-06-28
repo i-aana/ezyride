@@ -26,6 +26,7 @@ serve(async (req: Request) => {
       pickupDate,
       returnDate,
       carName,
+      specialRequests,
     } = await req.json();
 
     if (!SENDGRID_API_KEY) {
@@ -62,6 +63,7 @@ serve(async (req: Request) => {
               <p><strong>Return Date:</strong> ${returnDate}</p>
               <p><strong>Total Price:</strong> $${totalPrice}</p>
               <p><strong>Booking ID:</strong> ${bookingId}</p>
+              <p><strong>Booking ID:</strong> ${specialRequests}</p>
             `,
           },
         ],
