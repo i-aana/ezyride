@@ -16,6 +16,7 @@ const sendEmailToHost = async ({
   pickupDate,
   returnDate,
   carName,
+  specialRequests,
 }: any) => {
   try {
     const res = await fetch('https://znujbwmnpanlhwxgwlhm.supabase.co/functions/v1/send-confirmation', {
@@ -24,7 +25,7 @@ const sendEmailToHost = async ({
         'Content-Type': 'application/json',
         Authorization: `Bearer ${import.meta.env.VITE_SUPABASE_ANON_KEY}`,
       },
-      body: JSON.stringify({ fullName, email, bookingId, totalPrice, pickupDate, returnDate, carName }),
+      body: JSON.stringify({ fullName, email, bookingId, totalPrice, pickupDate, returnDate, carName,specialRequests}),
     });
 
     if (!res.ok) {
@@ -79,6 +80,8 @@ const BookingPageWrapper = () => {
       const totalDays = calculateTotalDays(pickupDate, returnDate);
       const costBreakdown = await fetchTotalPrice(pickupDate, returnDate);
       const totalPrice = costBreakdown.total;
+      console.log("Special requests value:", bookingState.customerInfo.specialRequests);
+      console.log("After trim:", bookingState.customerInfo.specialRequests?.trim());
 
       const pickupDateStr = pickupDate?.toISOString() ?? '';
       const returnDateStr = returnDate?.toISOString() ?? '';
@@ -94,7 +97,7 @@ const BookingPageWrapper = () => {
           full_name: `${bookingState.customerInfo.firstName} ${bookingState.customerInfo.lastName}`.trim(),
           email: bookingState.customerInfo.email,
           phone: bookingState.customerInfo.phone,
-          special_requests: bookingState.customerInfo.specialRequests?.trim() || 'none',
+          special_requests: bookingState.customerInfo.specialRequests?.trim() ?? 'none',
           pickup_date: pickupDateStr,
           return_date: returnDateStr,
           total_days: totalDays,
@@ -119,6 +122,7 @@ const BookingPageWrapper = () => {
         pickupDate: pickupDateStr,
         returnDate: returnDateStr,
         carName: bookingState.selectedCar.name,
+        specialRequests: bookingState.customerInfo.specialRequests?.trim() || 'none',
       });
 
       await sendEmailToHost({
@@ -129,6 +133,7 @@ const BookingPageWrapper = () => {
         pickupDate: pickupDateStr,
         returnDate: returnDateStr,
         carName: bookingState.selectedCar.name,
+        specialRequests: bookingState.customerInfo.specialRequests?.trim() || 'none',
       });
 
       // Cleanup
@@ -156,24 +161,7 @@ const BookingPageWrapper = () => {
         }
       />
 
-      {/* {showConfirmation && (
-        <div className="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50">
-          <div className="bg-white rounded-lg p-6 shadow-xl text-center max-w-sm w-full">
-            <h2 className="text-xl font-bold text-green-700 mb-4">Booking Confirmed!</h2>
-            <p className="mb-2">Booking ID:</p>
-            <p className="font-mono text-blue-600 mb-4">{bookingId}</p>
-            <button
-              onClick={() => {
-                setShowConfirmation(false);
-                navigate('/');
-              }}
-              className="px-6 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
-            >
-              Go to Home
-            </button> */}
-          {/* </div> */}
-        {/* // </div> */}
-      {/* )} */}
+      
     </>
   );
 };
