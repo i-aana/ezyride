@@ -185,7 +185,7 @@ const BookingDetailsModal: React.FC<BookingDetailsModalProps> = ({
                 <div>
                   <label className="block text-sm font-medium text-gray-700">Special Request</label>
                   <textarea
-                    value={request.special_request || ''}
+                    value={request.special_request?.trim() ? request.special_request : 'none'}
                     readOnly
                     className="w-full px-3 py-2 border border-gray-300 rounded-md bg-gray-50"
                     rows={3}
