@@ -104,17 +104,14 @@ const AdminLogin = () => {
   return (
     <div className="min-h-screen bg-gray-50 flex flex-col justify-start items-center pt-10 px-4">
       {/* Logo */}
-      <div className="mb-6">
+      <div className="mb-20">
         <img
           src="EzyRide-removebg-preview.png"
           alt="EzyRide Logo"
           className="w-40 md:w-60 h-auto mx-auto"
         />
       </div>
-      <br>
-      </br>
-      <br>
-      </br>
+     
 
       {/* Login Box */}
       <div className="bg-white p-8 rounded-lg shadow-md w-full max-w-md">
