@@ -118,7 +118,7 @@ const AdminLogin = () => {
 
       {/* Login Box */}
       <div className="bg-white p-8 rounded-lg shadow-md w-full max-w-md">
-        <div className="text-center mb-8">
+        <div className="text-center mb-10">
           <p className="text-gray-600 font-bold text-lg">Welcome HOST</p>
         </div>
 
