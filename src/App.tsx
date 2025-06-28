@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import Header from './components/Header';
 import Hero from './components/Hero';
 import CarDetails from './components/CarDetails';
-import CustomerFormModal from './components/CustomerFormModal';
+// import CustomerFormModal from './components/CustomerFormModal';
 import FeaturesSection from './components/FeaturesSection';
 import TestimonialsSection from './components/TestimonialsSection';
 import Footer from './components/Footer';
