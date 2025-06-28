@@ -104,7 +104,7 @@ const AdminLogin = () => {
   return (
     <div className="min-h-screen bg-gray-50 flex flex-col justify-start items-center pt-10 px-4">
       {/* Logo */}
-      <div className="mb-20">
+      <div className="mb-24">
         <img
           src="EzyRide-removebg-preview.png"
           alt="EzyRide Logo"
